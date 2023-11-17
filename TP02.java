@@ -12,6 +12,7 @@ public class TP02 {
     private static InputReader in;
     private static PrintWriter out;
     private static LinkedListKelas list_kelas = new LinkedListKelas();
+    private static ArrayList<Integer> temp = new ArrayList<>();
 
 
 
@@ -20,22 +21,25 @@ public class TP02 {
         in = new InputReader(inputStream);
         OutputStream outputStream = System.out;
         out = new PrintWriter(outputStream);
-        int M = in.nextInt();
-        int Mi;  // Mi
-        int O=0; // sigma N
+        int M = in.nextInt(); //Banyak kelas
+        int Mi;  // Mi  Banyak siswa pada kelas i
+        
         int id=0;
         for (int i=0; i < M; i++){
             KelasAVLtree kelas = new KelasAVLtree(i+1); // bikin kelas baru
             list_kelas.insert_kelas(kelas);
             Mi = in.nextInt();
-            O += Mi;
-            for(int j=0; j < Mi; j++){
-                kelas.insertId(++id, kelas.rootNode);
+            temp.add(Mi);
+        }
+        id=0;
+        KelasAVLtree kelas = list_kelas.head;
+        for(int i=0;i < M; i++){
+            for (int j =0; j < temp.get(i);j++){
+                kelas.insertId(++id, in.nextInt());
             }
+            kelas = kelas.next;
         }
-        for (int i=0; i < O; i++){
-            Siswa siswa = ;
-        }
+     
 
         String Q = in.next();
         if(Q.equals("T")){
@@ -290,9 +294,9 @@ static class KelasAVLtree  // Kelas
     }  
       
     // create insertId() to insert id to to the AVL Tree  
-    public void insertId(int id)  
+    public void insertId(int id, int poin)  
     {  
-        rootNode = insertId(id, rootNode);  
+        rootNode = insertId(id, poin,rootNode);  
     }  
       
     //create getHeight() method to get the height of the AVL Tree  
@@ -309,32 +313,47 @@ static class KelasAVLtree  // Kelas
       
       
     //create insertId() method to insert data in the AVL Tree recursively   
-    private Siswa insertId(int id, Siswa node)  
+    private Siswa insertId(int id,int poin, Siswa node)
     {  
         //check whether the node is null or not  
         if (node == null)  
             node = new Siswa(id);  
         //insert a node in case when the given id is lesser than the id of the root node  
-        else if (id < node.id)  
+        else if (poin < node.poin)  
         {  
-            node.leftChild = insertId( id, node.leftChild );  
+            node.leftChild = insertId( id,poin, node.leftChild );
             if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
-                if( id < node.leftChild.id )  
+                if( poin < node.leftChild.poin )  
                     node = rotateWithLeftChild( node );  
                 else  
                     node = doubleWithLeftChild( node );  
         }  
-        else if( id > node.id )  
+        else if( poin > node.poin )  
         {  
-            node.rightChild = insertId( id, node.rightChild );  
+            node.rightChild = insertId( id,poin ,node.rightChild );
             if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
-                if( id > node.rightChild.id)  
+                if( poin > node.rightChild.poin)  
                     node = rotateWithRightChild( node );  
                 else  
                     node = doubleWithRightChild( node );  
         }  
-        else  
-            ;  // if the id is already present in the tree, we will do nothing   
+        else if(poin == node.poin && id < node.id) {
+
+            node.leftChild = insertId( id,poin, node.leftChild );
+            if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
+                if( id < node.leftChild.id )  
+                    node = rotateWithLeftChild( node );  
+                else  
+                    node = doubleWithLeftChild( node );
+        }  
+        else if (poin == node.poin && id > node.id){
+            node.rightChild = insertId( id,poin ,node.rightChild );
+            if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
+                if( id > node.rightChild.id)  
+                    node = rotateWithRightChild( node );  
+                else  
+                    node = doubleWithRightChild( node ); 
+        }
         node.h = getMaxHeight( getHeight( node.leftChild ), getHeight( node.rightChild ) ) + 1;  
           
         return node;  
@@ -349,7 +368,7 @@ static class KelasAVLtree  // Kelas
         //insert a node in case when the given id is lesser than the id of the root node  
         else if (siswa.id < node.id)  
         {  
-            node.leftChild = insertId( siswa.id, node.leftChild );  
+            node.leftChild = insertSiswa( siswa.id, node.leftChild );  
             if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
                 if( siswa.id < node.leftChild.id )  
                     node = rotateWithLeftChild( node );  
@@ -471,7 +490,117 @@ static class KelasAVLtree  // Kelas
         }
     }
 
-    
+
+    int getBalance(Siswa N) 
+    { 
+        if (N == null) 
+            return 0; 
+        return getHeight(N.leftChild) - getHeight(N.rightChild); 
+    } 
+
+    Siswa minValueNode(Siswa node) 
+    { 
+        Siswa current = node; 
+ 
+        /* loop down to find the leftmost leaf */
+        while (current.leftChild != null) 
+        current = current.leftChild; 
+ 
+        return current; 
+    }
+
+
+    Siswa deleteSiswa(Siswa root, int id) 
+    { 
+        // STEP 1: PERFORM STANDARD BST DELETE 
+        if (root == null) 
+            return root; 
+ 
+        // If the id to be deleted is smaller than 
+        // the root's id, then it lies in left subtree 
+        if (id < root.id) 
+            root.leftChild = deleteSiswa(root.leftChild, id); 
+ 
+        // If the id to be deleted is greater than the 
+        // root's id, then it lies in right subtree 
+        else if (id > root.id) 
+            root.rightChild = deleteSiswa(root.rightChild, id); 
+ 
+        // if id is same as root's id, then this is the node 
+        // to be deleted 
+        else
+        { 
+ 
+            // node with only one child or no child 
+            if ((root.leftChild == null) || (root.rightChild == null)) 
+            { 
+                Siswa temp = null; 
+                if (temp == root.leftChild) 
+                    temp = root.rightChild; 
+                else
+                    temp = root.leftChild; 
+ 
+                // No child case 
+                if (temp == null) 
+                { 
+                    temp = root; 
+                    root = null; 
+                } 
+                else // One child case 
+                    root = temp; // Copy the contents of 
+                                // the non-empty child 
+            } 
+            else
+            { 
+ 
+                // node with two children: Get the inorder 
+                // successor (smallest in the right subtree) 
+                Siswa temp = minValueNode(root.rightChild); 
+ 
+                // Copy the inorder successor's data to this node 
+                root.id = temp.id; 
+ 
+                // Delete the inorder successor 
+                root.rightChild = deleteSiswa(root.rightChild, temp.id); 
+            } 
+        } 
+ 
+        // If the tree had only one node then return 
+        if (root == null) 
+            return root; 
+ 
+        // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE 
+        root.h = getMaxHeight(getHeight(root.leftChild), getHeight(root.rightChild)) + 1; 
+ 
+        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether 
+        // this node became unbalanced) 
+        int balance = getBalance(root); 
+ 
+        // If this node becomes unbalanced, then there are 4 cases 
+        // Left Left Case 
+        if (balance > 1 && getBalance(root.leftChild) >= 0) 
+            return rotateWithLeftChild(root); 
+ 
+        // Left Right Case 
+        if (balance > 1 && getBalance(root.leftChild) < 0) 
+        { 
+            root.leftChild = rotateWithRightChild(root.leftChild); 
+            return rotateWithLeftChild(root); 
+        } 
+ 
+        // Right Right Case 
+        if (balance < -1 && getBalance(root.rightChild) <= 0) 
+            return rotateWithRightChild(root); 
+ 
+        // Right Left Case 
+        if (balance < -1 && getBalance(root.rightChild) > 0) 
+        { 
+            root.rightChild = rotateWithLeftChild(root.rightChild); 
+            return rotateWithRightChild(root); 
+        } 
+ 
+        return root; 
+    }
 }
 
 
@@ -521,3 +650,5 @@ static class InputReader {
 
 //references:
 //https://www.javatpoint.com/avl-tree-program-in-java
+//https://github.com/eugeniusms/SDA-2022/blob/master/Lab05%20-%20Kejuaraan%20Sofita/Lab05Stack.java
+//https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
