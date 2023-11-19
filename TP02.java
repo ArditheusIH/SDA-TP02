@@ -1,8 +1,9 @@
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListMap;
 
-import org.w3c.dom.Node;
+
+
+
 
 
 
@@ -13,6 +14,8 @@ public class TP02 {
     private static PrintWriter out;
     private static LinkedListKelas list_kelas = new LinkedListKelas();
     private static ArrayList<Integer> temp = new ArrayList<>();
+    private static ArrayList<Siswa> listSiswa = new ArrayList<>();
+
 
 
 
@@ -34,31 +37,48 @@ public class TP02 {
         id=0;
         KelasAVLtree kelas = list_kelas.head;
         for(int i=0;i < M; i++){
-            for (int j =0; j < temp.get(i);j++){
+            
+            for (int j=0; j < temp.get(i);j++){
                 kelas.insertId(++id, in.nextInt());
+                
             }
             kelas = kelas.next;
+            
         }
-     
+        // for (Siswa siswa : listSiswa) {
+        //     System.out.println("id: "+siswa.id);
+        //     System.out.println("poin: "+siswa.poin);
+            
+        // }
+        // KelasAVLtree current = list_kelas.head;
+        // for(int i=0; i<list_kelas.size();i++){
+        //     System.out.println(list_kelas.size());
+        //     current.inorderTraversal(current.rootNode);
+        //     current=current.next;
+        //     }
 
+    int banyakQuery = in.nextInt();
+    
+    for (int i = 0; i<banyakQuery;i++){
         String Q = in.next();
-        if(Q.equals("T")){
-            T(in.nextInt(), in.nextInt());
-        }
-        else if(Q.equals("C")){
-            C(in.nextInt());
-        }
-        else if(Q.equals("G")){
-            G(in.next());
-        }
-        else if(Q.equals("S")){
-            S();
-        }
-        else if(Q.equals("K")){
-            K();
-        }
-        else if(Q.equals("A")){
-            A(in.nextInt());
+            if(Q.equals("T")){
+                T(in.nextInt(), in.nextInt());
+            }
+            else if(Q.equals("C")){
+                C(in.nextInt());
+            }
+            else if(Q.equals("G")){
+                G(in.next());
+            }
+            else if(Q.equals("S")){
+                S();
+            }
+            else if(Q.equals("K")){
+                K();
+            }
+            else if(Q.equals("A")){
+                A(in.nextInt());
+            }
         }
     }
 
@@ -67,9 +87,15 @@ public class TP02 {
         //output:Cetak poin siswa setelah ditambah bobot poin tugas
         //Jika siswa tidak ditemukan, maka cetak -1
         KelasAVLtree kelas  = list_kelas.pakcil;
-        Siswa siswa = kelas.search(id_siswa);
-        siswa.poin += poin;
-        System.out.println(siswa.poin);
+        Siswa siswa = kelas.searchById(id_siswa);
+        siswa.banyakSiswaTutor = kelas.countNodesSmallerThan(kelas.rootNode, siswa.poin);
+        if(siswa != null){
+            siswa.poin += poin;
+            if(siswa.poin+siswa.getTutor() > poin)
+            out.println(siswa.poin);
+            else 
+            out.println(siswa.poin+siswa.getTutor());
+        }
     }
 
     public static void C(int id_siswa){
@@ -80,12 +106,13 @@ public class TP02 {
         // ○ Jika siswa ditemukan dan merupakan curang ketiga, maka siswa akan di DO. Cetak [id_siswa].
         // ○ Jika siswa tidak ditemukan, maka cetak -1.
         KelasAVLtree kelas  = list_kelas.pakcil;
-        Siswa siswa = kelas.search(id_siswa);
+        Siswa siswa = kelas.searchById(id_siswa);
         siswa.banyak_kecurangan += 1;
         siswa.poin = 0;
         if (siswa.banyak_kecurangan == 1)System.out.println(0);
         else if(siswa.banyak_kecurangan == 2){
             //TODO: siswa dipindahkan ke kelas yang paling buruk
+            
         }
         else if(siswa.banyak_kecurangan == 3){
             //TODO: siswa dikick dari sekolah
@@ -100,7 +127,7 @@ public class TP02 {
         //Cetak nomor id kelas tempat Pakcil sekarang berada.
         if (l_r.equals("R")) list_kelas.pakcil = list_kelas.pakcil.next;
         else list_kelas.pakcil = list_kelas.pakcil.prev;
-        System.out.println(list_kelas.pakcil.id);
+        out.println(list_kelas.pakcil.id);
     }
 
     public static void S(){
@@ -114,16 +141,16 @@ public class TP02 {
                 KelasAVLtree  MA = list_kelas.pakcil.prev;
                 Siswa[] siswa_dari_M = new Siswa[3];
                 Siswa[] siswa_dari_MA = new Siswa[3];
-                for(int i =0;i<3;i++){
-                    Siswa siswaM = ;//siswa terbaik
-                    Siswa siswaMA = ;//siswa terburuk
-                    siswa_dari_M[i] = siswaM;
-                    siswa_dari_MA[i] = siswaMA;
-                }
-                for(int i =0;i<3;i++){
-                    M.insertSiswa(siswa_dari_MA[i]);
-                    MA.insertSiswa(siswa_dari_M[i]);
-                }
+                // for(int i =0;i<3;i++){
+                //     Siswa siswaM = ;//siswa terbaik
+                //     Siswa siswaMA = ;//siswa terburuk
+                //     siswa_dari_M[i] = siswaM;
+                //     siswa_dari_MA[i] = siswaMA;
+                // }
+                // for(int i =0;i<3;i++){
+                //     M.insertSiswa(siswa_dari_MA[i]);
+                //     MA.insertSiswa(siswa_dari_M[i]);
+                // }
             }
 
         }
@@ -144,6 +171,16 @@ public class TP02 {
         //Cetak urutan baru kelas tempat Pakcil sekarang berada. (Note: urutan tidak sama dengan
         // nomor id kelas)
         // ○ Urutan kelas dimulai dari 1.
+        KelasAVLtree current = list_kelas.head;
+        int index = 1;
+        if (current == list_kelas.pakcil)System.out.println(1);
+        else{
+            while(current.next != list_kelas.pakcil){
+            current = current.next;
+            index++;
+            }
+        }
+        System.out.println(index);
     }
 
     public static void A(int banyak_siswa){
@@ -163,6 +200,8 @@ public class TP02 {
         public LinkedListKelas(){
             head=null;
             tail=null;
+            
+
         }
 
         // insert kelas di ujung list
@@ -171,6 +210,8 @@ public class TP02 {
                 pakcil = kelas;
                 head = kelas;
                 tail = kelas;
+                tail.next = head;
+                head.prev = tail;
             }
             else{
                 tail.next = kelas;
@@ -181,34 +222,34 @@ public class TP02 {
         }
 
         public void bubbleSort() {
-            if (head == null || head.next == null) {
-                // List is already sorted (or empty)
-                return;
-            }
+            // if (head == null || head.next == null) {
+            //     // List is already sorted (or empty)
+            //     return;
+            // }
 
-            boolean sorted;
-            do {
-                sorted = true;
-                KelasAVLtree current = head;
+            // boolean sorted;
+            // do {
+            //     sorted = true;
+            //     KelasAVLtree current = head;
 
-                while (current.next != null) {
-                    if (current.rata2 > current.next.rata2) {
-                        // Swap data in nodes
-                        int temp = current.rata2;
-                        current.rata2 = current.next.rata2;
-                        current.next.rata2 = temp;
-                        sorted = false;
-                    }
+            //     while (current.next != null) {
+            //         if (current.rata2 > current.next.rata2) {
+            //             // Swap data in nodes
+            //              temp = current.rata2;
+            //             current.rata2 = current.next.rata2;
+            //             current.next.rata2 = temp;
+            //             sorted = false;
+            //         }
 
-                    current = current.next;
-                }
-            } while (!sorted);
+            //         current = current.next;
+            //     }
+            // } while (!sorted);
         }
 
         public int size(){
             int count = 0;
             KelasAVLtree current = this.head;
-            while (current.next != null) {
+            while (current != null) {
                 current = current.next;
                 count++;
             }
@@ -220,6 +261,7 @@ public class TP02 {
     int id;  //id siswa
     int poin; // poin siswa
     int banyak_kecurangan = 0;
+    public int banyakSiswaTutor;
     int h;  //for height  
     Siswa leftChild;  
     Siswa rightChild;  
@@ -233,14 +275,18 @@ public class TP02 {
         h = 0;  
     }  
     // parameterized constructor  
-    public Siswa(int id)  
+    public Siswa(int id, int poin)  
     {  
         leftChild = null;  
         rightChild = null;  
         this.id = id;  
+        this.poin = poin;
         h = 0;  
     }       
 
+    public int getTutor(){
+        return banyakSiswaTutor;
+    }
 
 }  
   
@@ -250,7 +296,8 @@ static class KelasAVLtree  // Kelas
     private Siswa rootNode;  
     public int id;     
     KelasAVLtree next,prev;
-    public int rata2;
+    public double rata2;
+    int totalPoin;
 
     //Constructor to set null value to the rootNode  
     public KelasAVLtree(int id)  
@@ -258,6 +305,22 @@ static class KelasAVLtree  // Kelas
         rootNode = null;  
         this.id = id;
     }  
+
+    public int countNodesSmallerThan(Siswa root, int target) {
+        if (root == null) {
+            return 0;
+        }
+
+        if (root.poin < target) {
+            return 1 + getSize(root.leftChild) + countNodesSmallerThan(root.rightChild, target);
+        } else {
+            return countNodesSmallerThan(root.leftChild, target);
+        }
+    }
+
+    static int getSize(Siswa root) {
+        return (root == null) ? 0 : 1 + getSize(root.leftChild) + getSize(root.rightChild);
+    }
 
 
     public Siswa findMax(Siswa node){
@@ -269,13 +332,33 @@ static class KelasAVLtree  // Kelas
     }
 
     public void assign_poin(int id, int point){
-        Siswa siswa = search(id);
+        Siswa siswa = searchById(id);
         siswa.poin = point;
     }
 
-    public void hitung_rata2(){
-        //TODO:
+    public void hitungTotalPoin(){
+        hitungTotalPoin(rootNode);
+    }
+
+    public void hitungTotalPoin(Siswa node){
         
+        if (node != null)  
+        {  
+            hitungTotalPoin(node.leftChild);  
+            totalPoin += node.poin;  
+            hitungTotalPoin(node.rightChild);  
+        }  
+        
+    }
+    public double getRata2(){
+        rata2 = totalPoin/getTotalNumberOfNodes();
+        return rata2;
+    }
+
+    public Siswa pop(Siswa node){
+        Siswa siswa = searchById(node.id);
+        deleteSiswa(rootNode, siswa.id);
+        return siswa;
     }
       
     //create removeAll() method to make AVL Tree empty  
@@ -293,11 +376,7 @@ static class KelasAVLtree  // Kelas
             return false;  
     }  
       
-    // create insertId() to insert id to to the AVL Tree  
-    public void insertId(int id, int poin)  
-    {  
-        rootNode = insertId(id, poin,rootNode);  
-    }  
+    
       
     //create getHeight() method to get the height of the AVL Tree  
     private int getHeight(Siswa node )  
@@ -310,18 +389,47 @@ static class KelasAVLtree  // Kelas
     {  
     return leftNodeHeight > rightNodeHeight ? leftNodeHeight : rightNodeHeight;  
     }  
-      
+    
+    // create insertId() to insert id to to the AVL Tree  
+    public void insertId(int id, int poin)  
+    {  
+        rootNode = insertId(id, poin,rootNode);  
+    }  
       
     //create insertId() method to insert data in the AVL Tree recursively   
     private Siswa insertId(int id,int poin, Siswa node)
     {  
         //check whether the node is null or not  
-        if (node == null)  
-            node = new Siswa(id);  
+        if (node == null)  {
+            node = new Siswa(id,poin); 
+            listSiswa.add(node) ;}
+
+        else if(poin == node.poin && id < node.id) {
+            node.leftChild = insertId( id,poin, node.leftChild );
+            // listSiswa.add(node.leftChild);
+            if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
+                if( id < node.leftChild.id )  
+                    node = rotateWithLeftChild( node );  
+                else  
+                    node = doubleWithLeftChild( node );
+        }  
+        else if (poin == node.poin && id > node.id){
+            node.rightChild = insertId( id,poin ,node.rightChild );
+            // listSiswa.add(node.rightChild);
+            if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
+                if( id > node.rightChild.id)  
+                    node = rotateWithRightChild( node );  
+                else  
+                    node = doubleWithRightChild( node ); 
+        }
+
+
         //insert a node in case when the given id is lesser than the id of the root node  
+
         else if (poin < node.poin)  
         {  
             node.leftChild = insertId( id,poin, node.leftChild );
+            // listSiswa.add(node.leftChild);
             if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
                 if( poin < node.leftChild.poin )  
                     node = rotateWithLeftChild( node );  
@@ -331,66 +439,51 @@ static class KelasAVLtree  // Kelas
         else if( poin > node.poin )  
         {  
             node.rightChild = insertId( id,poin ,node.rightChild );
+            // listSiswa.add(node.rightChild);
             if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
                 if( poin > node.rightChild.poin)  
                     node = rotateWithRightChild( node );  
                 else  
                     node = doubleWithRightChild( node );  
         }  
-        else if(poin == node.poin && id < node.id) {
-
-            node.leftChild = insertId( id,poin, node.leftChild );
-            if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
-                if( id < node.leftChild.id )  
-                    node = rotateWithLeftChild( node );  
-                else  
-                    node = doubleWithLeftChild( node );
-        }  
-        else if (poin == node.poin && id > node.id){
-            node.rightChild = insertId( id,poin ,node.rightChild );
-            if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
-                if( id > node.rightChild.id)  
-                    node = rotateWithRightChild( node );  
-                else  
-                    node = doubleWithRightChild( node ); 
-        }
+        
         node.h = getMaxHeight( getHeight( node.leftChild ), getHeight( node.rightChild ) ) + 1;  
           
         return node;  
           
     }  
 
-    private Siswa insertSiswa(Siswa siswa, Siswa node)  
-    {  
-        //check whether the node is null or not  
-        if (node == null)  
-            node = new Siswa(siswa.id);  
-        //insert a node in case when the given id is lesser than the id of the root node  
-        else if (siswa.id < node.id)  
-        {  
-            node.leftChild = insertSiswa( siswa.id, node.leftChild );  
-            if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
-                if( siswa.id < node.leftChild.id )  
-                    node = rotateWithLeftChild( node );  
-                else  
-                    node = doubleWithLeftChild( node );  
-        }  
-        else if( siswa.id > node.id )  
-        {  
-            node.rightChild = insertId( siswa.id, node.rightChild );  
-            if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
-                if( siswa.id > node.rightChild.id)  
-                    node = rotateWithRightChild( node );  
-                else  
-                    node = doubleWithRightChild( node );  
-        }  
-        else  
-            ;  // if the id is already present in the tree, we will do nothing   
-        node.h = getMaxHeight( getHeight( node.leftChild ), getHeight( node.rightChild ) ) + 1;  
+    // private Siswa insertSiswa(Siswa siswa, Siswa node)  
+    // {  
+    //     //check whether the node is null or not  
+    //     if (node == null)  
+    //         node = new Siswa(siswa.id);  
+    //     //insert a node in case when the given id is lesser than the id of the root node  
+    //     else if (siswa.id < node.id)  
+    //     {  
+    //         node.leftChild = insertSiswa( siswa.id, node.leftChild );  
+    //         if( getHeight( node.leftChild ) - getHeight( node.rightChild ) == 2 )  
+    //             if( siswa.id < node.leftChild.id )  
+    //                 node = rotateWithLeftChild( node );  
+    //             else  
+    //                 node = doubleWithLeftChild( node );  
+    //     }  
+    //     else if( siswa.id > node.id )  
+    //     {  
+    //         node.rightChild = insertId( siswa.id, node.rightChild );  
+    //         if( getHeight( node.rightChild ) - getHeight( node.leftChild ) == 2 )  
+    //             if( siswa.id > node.rightChild.id)  
+    //                 node = rotateWithRightChild( node );  
+    //             else  
+    //                 node = doubleWithRightChild( node );  
+    //     }  
+    //     else  
+    //         ;  // if the id is already present in the tree, we will do nothing   
+    //     node.h = getMaxHeight( getHeight( node.leftChild ), getHeight( node.rightChild ) ) + 1;  
           
-        return node;  
+    //     return node;  
           
-    }  
+    // }  
       
     // creating rotateWithLeftChild() method to perform rotation of binary tree node with left child        
     private Siswa rotateWithLeftChild(Siswa node2)  
@@ -473,22 +566,35 @@ static class KelasAVLtree  // Kelas
     }  
 
     // Public method to search for an id in the AVL tree
-    public Siswa search(int id) {
-        return search(rootNode, id);
+    public Siswa searchById(int id) {
+        return listSiswa.get(id-1);
+    
     }
+    //     return searchById(rootNode, id);
+    // }
 
-    // Private method to search for an id in the AVL tree
-    private Siswa search(Siswa node, int id) {
-        if (node == null || node.id == id) {
-            return node;
-        }
+    // // Private method to search for an id in the AVL tree
+    // private Siswa searchById(Siswa node, int targetId) {
+    //     if (node == null) {
+    //         return null;
+    //     }
 
-        if (id < node.id) {
-            return search(node.leftChild, id);
-        } else {
-            return search(node.rightChild, id);
-        }
-    }
+    //     Siswa result = searchById(node.leftChild, targetId);
+
+    //     // Check the current node
+    //     if (result == null && node.id == targetId) {
+    //         return node;
+    //     }
+
+    //     // If not found in the left subtree, check the right subtree
+    //     if (result == null) {
+    //         result = searchById(node.rightChild, targetId);
+    //     }
+
+    //     return result;
+    
+
+    // }
 
 
     int getBalance(Siswa N) 
@@ -601,6 +707,15 @@ static class KelasAVLtree  // Kelas
  
         return root; 
     }
+    public void inorderTraversal(Siswa head)  
+    {  
+        if (head != null)  
+        {  
+            inorderTraversal(head.leftChild);  
+            System.out.println("id:"+head.id+" poin:"+head.poin+" ");  
+            inorderTraversal(head.rightChild);  
+        }  
+    }  
 }
 
 
